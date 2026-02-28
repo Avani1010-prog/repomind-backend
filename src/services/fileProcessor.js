@@ -92,6 +92,12 @@ export async function processCodeFiles(dirPath) {
             }
 
             const content = fs.readFileSync(fullPath, 'utf-8');
+
+            // Skip empty files — Mongoose requires content to be non-empty
+            if (!content || !content.trim()) {
+                continue;
+            }
+
             const ext = path.extname(filePath).toLowerCase();
             const language = CODE_EXTENSIONS[ext] || 'text';
 

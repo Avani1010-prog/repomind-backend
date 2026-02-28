@@ -78,7 +78,7 @@ Format your response as JSON with this structure:
                 }
             ],
             temperature: 0.3,
-            max_tokens: 2000,
+            max_tokens: 4000,
             response_format: { type: "json_object" }
         });
 
@@ -127,11 +127,18 @@ function findRelevantFiles(files, question) {
         return { ...file, score };
     });
 
-    // Sort by score and take top 10 files
-    return scoredFiles
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 10)
-        .filter(f => f.score > 0);
+    // Sort by score descending
+    const sorted = scoredFiles.sort((a, b) => b.score - a.score);
+
+    // Take top matches (score > 0). If NOTHING scores, fall back to the top 8
+    // files so OpenAI always receives meaningful context.
+    const matched = sorted.filter(f => f.score > 0).slice(0, 10);
+    if (matched.length > 0) return matched;
+
+    // Fallback: return up to 8 files sorted by size (larger files tend to be more important)
+    return [...files]
+        .sort((a, b) => (b.size || 0) - (a.size || 0))
+        .slice(0, 8);
 }
 
 /**

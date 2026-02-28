@@ -99,6 +99,12 @@ export async function deleteCodebase(id) {
 
 // Code File Operations
 export async function insertCodeFile(codebaseId, filePath, content, language, size) {
+  // Guard: skip empty files — Mongoose `required: true` rejects empty strings
+  if (!content || !content.trim()) {
+    console.warn(`⚠️  Skipping empty file: ${filePath}`);
+    return null;
+  }
+
   const codeFile = new CodeFile({
     codebase_id: codebaseId,
     file_path: filePath,
