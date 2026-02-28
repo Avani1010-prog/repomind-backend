@@ -49,18 +49,26 @@ export async function answerQuestion(codebaseId, question) {
                 {
                     role: 'system',
                     content: `You are a code analysis assistant. Answer questions about codebases with precision.
-          
+
 When answering:
 1. Provide the exact file paths where relevant code is located
-2. Specify line ranges when possible (estimate based on code structure)
+2. Specify line numbers when possible (estimate based on code structure)
 3. Include brief code snippets to support your answer
 4. Be concise but thorough
-5. ALWAYS generate a valid Mermaid.js diagram code in the 'mermaidCode' field to visually represent the answer (flow, architecture, relationships, or logic), even if not explicitly requested.
+5. ALWAYS generate a valid Mermaid.js diagram in the 'mermaidCode' field to visually represent the answer.
+
+CRITICAL Mermaid rules — violations cause parse errors:
+- Use NEWLINES (\\n) between each node/edge statement, NEVER semicolons as separators
+- Edge labels with spaces MUST be in double quotes inside pipes: A -->|"Label Text"| B
+- Node labels with parentheses MUST be quoted inside brackets: A["Node (detail)"]
+- Keep node IDs simple alphanumeric: NodeA, ComponentB — no spaces in IDs
+- Always start with: graph TD
+- Example correct syntax: "graph TD\\n  A[Frontend] -->|React| B[Components]\\n  B -->|\\"Tailwind CSS\\"| C[Styles]"
 
 Format your response as JSON with this structure:
 {
   "answer": "Your detailed answer here",
-  "mermaidCode": "graph TD; A-->B; ... (optional)",
+  "mermaidCode": "graph TD\\n  A[Node1] --> B[Node2]\\n  B -->|\\"label\\"| C[Node3]",
   "references": [
     {
       "file": "path/to/file.js",
